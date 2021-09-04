@@ -11,3 +11,6 @@ scikit-learn 0.22.1
 
 ## dataset
 you can download the data files [here](https://static.leiphone.com/sound_classification_50.zip)
+
+## result
+to be continued
