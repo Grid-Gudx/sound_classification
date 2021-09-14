@@ -14,7 +14,6 @@ from utils import mc_metrics, LossHistory
 # from network import model_creat
 from pre_models import model_creat
 
-'''
 class DataGenerator(Sequence):
     """
     基于Sequence的自定义Keras数据生成器
@@ -144,4 +143,3 @@ model.fit_generator(generator=training_generator,
                     callbacks=[myhistory])
 
 myhistory.loss_plot()
-'''
