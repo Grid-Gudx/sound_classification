@@ -43,10 +43,10 @@ class_ratio(label)
 ### 分离验证集
 from sklearn.model_selection import StratifiedKFold
 
-x = mel_data
+x = np.array(range(1600)) #jpg name
 y = label.astype(np.float32)
 
-out_path = './data/dataset/mel/'
+out_path = './data/jpg_data/mel_idx'
 
 skf = StratifiedKFold(n_splits=5, random_state=None, shuffle=False) #分层交叉验证
 i = 0
