@@ -4,6 +4,8 @@ Created on Mon Sep 13 15:25:43 2021
 
 @author: gdx
 """
+import sys
+sys.path.append('../')
 
 import cv2
 import numpy as np 
@@ -11,8 +13,10 @@ from tensorflow.keras.utils import Sequence
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras import optimizers
 from utils import mc_metrics, LossHistory
+from tensorflow.keras.models import load_model
 # from network import model_creat
 from pre_models import model_creat
+
 
 class DataGenerator(Sequence):
     """
@@ -108,38 +112,49 @@ def path_to_array(idx_path, label_path):
     
     return np.concatenate((data_idx,y),axis=1) #x_idx, y
 
-path_params = {'idx_path':'train_data_1.npy', 'label_path':'train_label_1.npy'}
+# path_params = {'idx_path':'train_data_1.npy', 'label_path':'train_label_1.npy'}
+# train_x_y = path_to_array(**path_params)
+# path_params = {'idx_path':'val_data_1.npy', 'label_path':'val_label_1.npy'}
+# val_x_y = path_to_array(**path_params)
+
+#训练全部数据
+path_params = {'idx_path':'train_data_total.npy', 'label_path':'train_label_total.npy'}
 train_x_y = path_to_array(**path_params)
-path_params = {'idx_path':'val_data_1.npy', 'label_path':'val_label_1.npy'}
-val_x_y = path_to_array(**path_params)
+val_x_y = train_x_y
 
 
-file_path = '../data/jpg_data/mel_data/'
+file_path = '../data/jpg_data/mel_data2/'
 # Parameters
-params = {'dim':(100, 100),
+params = {'dim':(150, 150),
           'n_channels': 3,
           'n_classes': 50,
           'shuffle': True}
 
 # Generators
-training_generator = DataGenerator(file_path, train_x_y, batch_size=512, **params)
-validation_generator = DataGenerator(file_path, val_x_y, batch_size=160, **params)
+training_generator = DataGenerator(file_path, train_x_y, batch_size=1600, **params)
+validation_generator = DataGenerator(file_path, val_x_y, batch_size=512, **params)
 
-model_save_path='./model/mobilenet.h5'
-Epoch = 15
+model_save_path='./model/mobilenet_1.h5'
+Epoch = 50
 
-model = model_creat(input_shape=(100, 100, 3), output_dim=50)
-model.summary()
+# model = model_creat(input_shape=(150, 150, 3), output_dim=50)
+# model.summary()
 
-myhistory = LossHistory(model_path=model_save_path)
-model.compile(loss='categorical_crossentropy',
-              optimizer=optimizers.Adam(lr=0.001),#'Adam',
-              metrics=['categorical_accuracy'])
+# myhistory = LossHistory(model_path=model_save_path)
+# model.compile(loss='categorical_crossentropy',
+#               optimizer=optimizers.Adam(lr=0.001),#'Adam',
+#               metrics=['categorical_accuracy'])
 
-model.fit_generator(generator=training_generator,
-                    validation_data=validation_generator,
-                    epochs=Epoch,
-                    verbose=False,
-                    callbacks=[myhistory])
+# model.fit_generator(generator=training_generator,
+#                     validation_data=validation_generator,
+#                     epochs=Epoch,
+#                     verbose=False,
+#                     callbacks=[myhistory])
 
-myhistory.loss_plot()
+# myhistory.loss_plot()
+val_x,val_y = training_generator.__getitem__(0)
+model = load_model(model_save_path, compile=False)
+y_score = model.predict(val_x)
+
+metric = mc_metrics(input_label_type='one_hot')
+print(metric.acc(y_score, val_y))
